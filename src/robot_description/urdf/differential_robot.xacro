@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<robot name="differential_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Incluindo as rodas e IMU-->
+<xacro:include filename="$(find robot_description)/urdf/wheels.xacro"/>
+  <!--Base Footprint-->
+  <link name="base_link">
+  </link>
+
+  <!-- Link base do robô -->
+  <link name="chassis">
+    <visual>
+      <geometry>
+        <box size="1 0.5 0.2"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="1 0.5 0.2"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+  </link>
+
+  <joint name="base_joint" type="fixed">
+    <origin xyz="0.3 0 0" rpy="0 0 0"  />
+    <parent link="base_link" />
+    <child link="chassis" />
+  </joint>
+
+  <!-- Adicionando a Caster Ball -->
+  <link name="caster_wheel">
+    <visual>
+      <geometry>
+        <sphere radius="0.2"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.2"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.2"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <!-- Definindo a junta da Caster Ball -->
+  <joint name="caster_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel"/>
+    <origin xyz="0.6 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Definindo o atrito no Gazebo -->
+  <gazebo reference="caster_wheel">
+    <material>Gazebo/Black</material>
+    <mu1 value="0.001"/>
+    <mu2 value="0.001"/>
+  </gazebo>
+
+
+
+  <!-- Adicionando IMU -->
+  <link name="imu_link">
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"  />
+    <parent link="chassis" />
+    <child link="imu_link" />
+  </joint>
+
+<xacro:include filename="$(find robot_description)/urdf/sensors.xacro"/>
+
+
+
+
+
+</robot>
