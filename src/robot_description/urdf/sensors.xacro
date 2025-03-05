@@ -1,13 +1,121 @@
-<!-- IMU Plugin -->
-<gazebo reference="imu_link">
-    <sensor name="my_imu" type="imu">
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+
+  <xacro:macro name="imu_sensor">
+
+    <!-- Plugin IMU para Gazebo -->
+    <gazebo reference="imu_link">
+      <sensor name="imu_sensor" type="imu">
         <always_on>true</always_on>
         <update_rate>30</update_rate>
-        <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
-            <ros>
-                <namespace>/</namespace>
-                <!--<remapping></remapping> -->
-            </ros>
+        <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+          <ros>
+            <namespace>/</namespace>
+          </ros>
         </plugin>
-    </sensor>
-</gazebo>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <!--Lidar-->
+  <xacro:macro name="lidar_sensor">
+    <gazebo reference="lidar_link">
+      <sensor name="laser" type="ray">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.14</min_angle>
+              <max_angle>3.14</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.20</min>
+            <max>20.0</max>
+          </range>
+        </ray>  
+        <plugin filename="libgazebo_ros_ray_sensor.so" name="laser_controller">
+          <ros>
+            <argument>~/out:=/scan</argument>
+          </ros>
+          <output_type>sensor_msgs/LaserScan</output_type>
+          <frameName>laser</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- Camera -->
+  <xacro:macro name="camera_sensor">
+    <gazebo reference="camera_link">
+      <sensor name="camera" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>true</visualize>
+        <always_on>true</always_on>
+        <update_rate>10</update_rate>
+        <camera>
+          <horizontal_fov>1.089</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>8.0</far>
+          </clip>
+        </camera>
+        <plugin filename="libgazebo_ros_camera.so" name="camera_controller">
+          <frameName>camera</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+           
+  </xacro:macro>
+
+  <!-- Differential Controller -->
+  <xacro:macro name="differential_controller">
+    <gazebo>
+      <plugin name="gazebo_ros_diff_drive" filename="libgazebo_ros_diff_drive.so">
+        <ros>
+          <namespace>/</namespace>
+        </ros>
+
+        <!-- Update rate in Hz -->
+        <updateRate>50</updateRate>
+
+        <!-- Wheels -->
+        <left_joint>left_wheel_joint</left_joint>
+        <right_joint>right_wheel_joint</right_joint>
+
+        <!-- Kinematics-->
+        <wheel_separation>0.5</wheel_separation>
+        <wheel_diameter>0.4</wheel_diameter>
+
+        <!-- Limits -->
+        <max_wheel_torque>200</max_wheel_torque>
+        <max_wheel_acceleration>5.0</max_wheel_acceleration>
+
+        <!-- input -->
+        <commandTopic>cmd_vel</commandTopic>
+
+        <!-- output -->
+        <publish_odo>true</publish_odo>
+        <publish_odom_tf>true</publish_odom_tf>
+        <publish_wheel_tf>true</publish_wheel_tf>
+
+        <odometry_topic>odom</odometry_topic>
+        <odometry_frame>odom</odometry_frame>
+        <robot_base_frame>chassis</robot_base_frame>
+  
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

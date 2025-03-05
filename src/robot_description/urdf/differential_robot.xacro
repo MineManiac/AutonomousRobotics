@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="differential_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- Incluindo as rodas e IMU-->
+  <!-- Incluindo as rodas-->
 <xacro:include filename="$(find robot_description)/urdf/wheels.xacro"/>
   <!--Base Footprint-->
   <link name="base_link">
@@ -39,9 +39,9 @@
   <link name="caster_wheel">
     <visual>
       <geometry>
-        <sphere radius="0.2"/>
+        <sphere radius="0.1"/>
       </geometry>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
       <material name="black"/>
     </visual>
     <collision>
@@ -71,19 +71,97 @@
     <mu2 value="0.001"/>
   </gazebo>
 
-
-
-  <!-- Adicionando IMU -->
-  <link name="imu_link">
-  </link>
-
-  <joint name="imu_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"  />
-    <parent link="chassis" />
-    <child link="imu_link" />
+  <!-- Incluindo juntas rodas -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0 0.275 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="10"/>
   </joint>
 
-<xacro:include filename="$(find robot_description)/urdf/sensors.xacro"/>
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0 -0.275 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="10"/>
+  </joint>
+
+
+<!-- Link do IMU -->
+    <link name="imu_link"/>
+
+    <!-- Joint fixo conectando o IMU ao chassi -->
+    <joint name="imu_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="chassis"/>
+      <child link="imu_link"/>
+    </joint>
+
+    <xacro:include filename="$(find robot_description)/urdf/sensors.xacro"/>
+    <xacro:imu_sensor/>
+
+<!-- Link Lidar -->
+  <link name="lidar_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.05"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.05" length="0.05"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.12" rpy="0 0 0"/>
+  </joint>
+  
+  
+  <xacro:lidar_sensor/>
+
+  <!-- Link da Câmera -->
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="camera_link"/>
+    <origin xyz="0.3 0 0.12" rpy="0 0 0"/>
+  </joint>
+
+  
+  <xacro:camera_sensor/>
+
+  <xacro:differential_controller/>
+
+
 
 
 
